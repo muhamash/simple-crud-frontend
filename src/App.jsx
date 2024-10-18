@@ -1,11 +1,12 @@
-import { useContext } from 'react';
+import { Suspense, useContext } from 'react';
 import { useNavigate } from 'react-router-dom';
 import UserContext from '../src/components/UserContext';
 import './App.css';
 
 function App() {
-  const { formData, updateUser } = useContext(UserContext);
+  const { formData, updateUser } = useContext(UserContext); 
   const navigate = useNavigate();
+  console.log(formData)
 
   const handleChange = (e) => {
     const { name, value } = e.target;
@@ -14,30 +15,31 @@ function App() {
 
   const handleUser = (e) => {
     e.preventDefault();
-
-    fetch('http://localhost:3000/users', {
+    
+    fetch( 'http://localhost:3000/users', {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
       },
-      body: JSON.stringify(formData),
-    })
-      .then((res) => res.json())
-      .then((data) => {
-        if (data.insertedId) {
+      body: JSON.stringify( formData ),
+    } )
+      .then( ( res ) => res.json() )
+      .then( ( data ) =>
+      {
+        if ( data.insertedId )
+        {
           alert( 'Successfully submitted' );
-          
-          updateUser({
+          updateUser( {
             name: '',
             email: '',
-          });
-
-          navigate('/users');
+          } );
+          navigate( '/users' );
         }
-      })
-      .catch((error) => {
-        console.error('Error submitting data:', error);
-      });
+      } )
+      .catch( ( error ) =>
+      {
+        console.error( 'Error submitting data:', error );
+      } );
   };
 
   return (
@@ -60,11 +62,17 @@ function App() {
           onChange={handleChange}
         />
         <br />
-        <input type="submit" value="Submit" />
+        <input 
+          type="submit" 
+          value={formData.id? "Update" : "Submit"} 
+        />
       </form>
-      <button onClick={() => navigate('/users')}>
-        See users
-      </button>
+
+      <Suspense fallback={<p>Loading...</p>}>
+        <button onClick={() => navigate('/users')}>
+          See users
+        </button>
+      </Suspense>
     </div>
   );
 }

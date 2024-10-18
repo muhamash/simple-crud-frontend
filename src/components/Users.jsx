@@ -5,24 +5,45 @@ import UserContext from '../components/UserContext';
 export default function Users() {
   const initialUsers = useLoaderData();
   const [state, setState] = useState(initialUsers);
-  const { updateUser } = useContext(UserContext);
+  const { updateUser } = useContext( UserContext );
+  
+  console.log(state)
 
-  const handleClick = (id) => {
-    fetch(`http://localhost:3000/users/${id}`, {
-      method: 'DELETE',
-    })
-      .then((res) => res.json())
-      .then(() => {
-        const updatedUsers = state.filter((user) => user._id !== id);
-        setState(updatedUsers);
-      })
-      .catch((error) => {
-        console.error('Error deleting user:', error);
-      });
+  const handleClick = ( id ) =>
+  {
+    console.log( "Attempting to delete user with ID:", id );
+
+    fetch( `http://localhost:3000/users/${id}`, { method: 'DELETE' } )
+      .then( res => res.json() )
+      .then( data =>
+      {
+        if ( data.deletedCount === 1 )
+        {
+          const updatedUsers = state.filter( user => user._id !== id );
+          setState( updatedUsers );
+          console.log( "User deleted successfully" );
+        } else
+        {
+          console.log( "No user found or already deleted" );
+        }
+      } )
+      .catch( error =>
+      {
+        console.error( "Error deleting user:", error );
+      } );
   };
+
+
 
   return (
     <div>
+      <div>
+        <Link to={'/'}>
+           <button>
+          Back To Home
+        </button>
+        </Link>
+      </div>
       { state?.map( ( user, index ) => (
         <div key={ index } style={ {
           border: '1px solid #ccc',
@@ -56,7 +77,10 @@ export default function Users() {
             </button>
           </Link>
           <button
-            onClick={ () => handleClick( user._id ) }
+            onClick={ () =>
+            {
+              handleClick( user._id )
+            } }
             style={ {
               color: 'green',
               padding: '3px',
@@ -67,6 +91,11 @@ export default function Users() {
           </button>
         </div>
       ) ) }
+      {
+        state.length === 0 && (
+          <p>no users!!</p>
+        )
+      }
     </div>
   );
 }
