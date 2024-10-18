@@ -6,18 +6,24 @@ import './App.css';
 function App() {
   const { formData, updateUser } = useContext(UserContext); 
   const navigate = useNavigate();
-  console.log(formData)
-
+  
   const handleChange = (e) => {
     const { name, value } = e.target;
     updateUser({ ...formData, [name]: value });
   };
 
-  const handleUser = (e) => {
+  const handleUser = ( e ) =>
+  {
     e.preventDefault();
     
-    fetch( 'http://localhost:3000/users', {
-      method: 'POST',
+    const url = formData._id
+      ? `http://localhost:3000/users/${formData._id}`
+      : 'http://localhost:3000/users';
+    
+    const method = formData._id ? 'PUT' : 'POST';
+
+    fetch( url, {
+      method,
       headers: {
         'Content-Type': 'application/json',
       },
@@ -26,15 +32,16 @@ function App() {
       .then( ( res ) => res.json() )
       .then( ( data ) =>
       {
-        if ( data.insertedId )
+        if ( data.insertedId || data.modifiedCount )
         {
-          alert( 'Successfully submitted' );
+          alert( formData._id ? 'Successfully updated' : 'Successfully submitted' );
           updateUser( {
             name: '',
             email: '',
+            id: null,
           } );
-          navigate( '/users' );
         }
+        navigate( '/users' );
       } )
       .catch( ( error ) =>
       {
@@ -64,7 +71,7 @@ function App() {
         <br />
         <input 
           type="submit" 
-          value={formData.id? "Update" : "Submit"} 
+          value={formData._id ? "Update" : "Submit"}
         />
       </form>
 
