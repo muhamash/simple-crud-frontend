@@ -1,28 +1,33 @@
-import { StrictMode } from 'react';
+import { Suspense } from 'react';
 import { createRoot } from 'react-dom/client';
 import
   {
     createBrowserRouter,
     RouterProvider,
   } from "react-router-dom";
+import { UserProvider } from '../src/components/UserContext';
+import Users from '../src/components/Users';
 import App from './App';
-import Users from './components/Users';
-import "./index.css";
+import './index.css';
 
 const router = createBrowserRouter([
   {
     path: "/",
-    element: <App/>,
+    element: <App />,
   },
   {
     path: "/users",
-    element: <Users />,
+    element: (
+      <Suspense fallback={<p>Loading...</p>}>
+        <Users />
+      </Suspense>
+    ),
     loader: () => fetch("http://localhost:3000/users"),
   },
 ]);
 
 createRoot(document.getElementById('root')).render(
-  <StrictMode>
+  <UserProvider> 
     <RouterProvider router={router} />
-  </StrictMode>,
-)
+  </UserProvider>
+);

@@ -1,58 +1,45 @@
-import { useState } from 'react';
+import { useContext } from 'react';
+import { useNavigate } from 'react-router-dom';
+import UserContext from '../src/components/UserContext';
 import './App.css';
 
 function App() {
-  const [formData, setFormData] = useState({
-    name: '',
-    email: ''
-  });
-
+  const { formData, updateUser } = useContext(UserContext);
+  const navigate = useNavigate();
 
   const handleChange = (e) => {
     const { name, value } = e.target;
-    setFormData({
-      ...formData,
-      [name]: value
-    });
+    updateUser({ ...formData, [name]: value });
   };
 
-
-  const handleUser = ( e ) =>
-  {
+  const handleUser = (e) => {
     e.preventDefault();
 
-    // Perform form submission logic here
-    fetch( 'http://localhost:3000/users', {
+    fetch('http://localhost:3000/users', {
       method: 'POST',
       headers: {
-        'Content-Type': 'application/json'
+        'Content-Type': 'application/json',
       },
-      body: JSON.stringify( formData )
-    } )
-      .then( res => res.json() )
-      .then( data =>
-      {
-        console.log( 'Response from server:', data );
-        if ( data.insertedId )
-        {
-          alert( "successfully submitted" );
-        }
-      } )
-      .catch( (error, data) =>
-      {
-        if ( data.acknowledged === false )
-        {
-          console.error( 'Error submitting data:', error );
-        }
-      } );
+      body: JSON.stringify(formData),
+    })
+      .then((res) => res.json())
+      .then((data) => {
+        if (data.insertedId) {
+          alert( 'Successfully submitted' );
+          
+          updateUser({
+            name: '',
+            email: '',
+          });
 
-    console.log( 'Form Data:', formData );
-    setFormData( {
-      name: '',
-      email: ''
-    } );
+          navigate('/users');
+        }
+      })
+      .catch((error) => {
+        console.error('Error submitting data:', error);
+      });
   };
-  
+
   return (
     <div className="app-container">
       <h1>Simple CRUD FullStack App</h1>
@@ -73,8 +60,11 @@ function App() {
           onChange={handleChange}
         />
         <br />
-        <input type="submit" value="Add" />
+        <input type="submit" value="Submit" />
       </form>
+      <button onClick={() => navigate('/users')}>
+        See users
+      </button>
     </div>
   );
 }
